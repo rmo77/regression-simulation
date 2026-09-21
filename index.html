@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>회귀 분석 그래프 시뮬레이션</title>
+<style>
+:root{--bg:#f7f8fb;--card:#fff;--text:#1f2937;--muted:#667085;--line:#d9dee8;--accent:#315ea8;--accent2:#dbe8ff;--curve:#2563eb;--point:#ef4444}*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif;background:var(--bg);color:var(--text)}main{max-width:1050px;margin:auto;padding:28px 18px 48px}h1{font-size:clamp(24px,4vw,38px);margin:0 0 8px}.lead{color:var(--muted);margin:0 0 22px}.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}.tab{border:1px solid var(--line);background:#fff;border-radius:10px;padding:11px 15px;font-size:15px;cursor:pointer}.tab.active{background:var(--accent2);border-color:var(--accent);font-weight:700}.grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(260px,.8fr);gap:16px}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}.top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.formula{background:#f2f4f7;border-radius:9px;padding:9px 12px;font-family:ui-monospace,monospace;white-space:nowrap}.desc{color:var(--muted);line-height:1.6}.chart{width:100%;height:auto;display:block;margin-top:8px}.side{display:grid;gap:16px;align-content:start}.side h3{margin:0 0 10px;font-size:17px}.slider{width:100%}.memory{font-weight:800;font-size:18px;color:var(--accent)}.note{margin-top:18px;padding:14px 16px;border-left:4px solid var(--accent);background:#eef4ff;border-radius:8px;line-height:1.6}.legend{text-align:center;color:var(--muted);font-size:13px}.data-table{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}.data-table th,.data-table td{border-bottom:1px solid var(--line);padding:7px;text-align:center}.data-table th{background:#f7f8fa}@media(max-width:760px){.grid{grid-template-columns:1fr}.top{display:block}.formula{display:inline-block;margin-top:8px}}
+</style>
+</head>
+<body><main>
+<h1>회귀 분석 그래프 시뮬레이션</h1>
+<p class="lead">데이터의 모양에 따라 어떤 회귀 곡선이 어울리는지 직접 조절하며 비교해 보세요.</p>
+<div class="tabs" role="tablist">
+<button class="tab active" data-type="linear">1차 선형 회귀</button><button class="tab" data-type="quad">2차 다항 회귀</button><button class="tab" data-type="exp">지수 회귀</button><button class="tab" data-type="log">로그 회귀</button>
+</div>
+<div class="grid">
+<section class="card"><div class="top"><div><h2 id="caseTitle"></h2><p id="caseDesc" class="desc"></p></div><div id="formula" class="formula"></div></div><svg id="plot" class="chart" viewBox="0 0 700 410" aria-label="회귀 그래프"></svg><div class="legend">● 예시 데이터 &nbsp;&nbsp; ━ 회귀 곡선</div></section>
+<aside class="side">
+<section class="card"><h3>① 값을 움직여 보세요</h3><label><span id="controlLabel"></span>: <strong id="strengthValue"></strong></label><input id="strength" class="slider" type="range" min="1" max="5" value="3" step="1"><p id="controlHelp" class="desc"></p></section>
+<section class="card"><h3>② 그래프 읽는 법</h3><div id="reading" class="desc"></div></section>
+<section class="card"><h3>③ 한마디 암기</h3><div id="memory" class="memory"></div></section>
+<section class="card"><h3>④ 예시 데이터</h3><table class="data-table"><thead><tr><th id="xHead">x</th><th id="yHead">y</th></tr></thead><tbody id="dataBody"></tbody></table></section>
+</aside></div>
+<div class="note"><strong>수업 핵심:</strong> 1차는 <b>일정하게</b>, 2차는 <b>방향이 바뀌게</b>, 지수는 <b>갈수록 빠르게</b>, 로그는 <b>갈수록 느리게</b> 변하는 관계를 표현합니다. 차수가 높거나 곡선이 복잡하다고 항상 더 좋은 모델은 아닙니다.</div>
+</main>
+<script>
+(()=>{const $=s=>document.querySelector(s);let type='linear';const slider=$('#strength');
+const cfg={linear:{title:'예: 공부 시간과 시험 점수',desc:'공부 시간이 늘어날수록 시험 점수가 일정한 정도로 증가한다고 가정합니다.',formula:'y = ax + b',label:'기울기',help:'값을 높이면 공부 시간이 1시간 늘 때 예상 점수가 더 많이 증가합니다.',reading:'데이터 점들이 대체로 한 방향의 직선 형태를 보이면 1차 선형 회귀로 관계를 설명할 수 있습니다.',memory:'1차 = 일정하게 증가·감소 ↗',xh:'공부 시간',yh:'점수'},quad:{title:'예: 공부 시간과 시험 점수',desc:'공부 시간이 늘면 성적이 오르지만, 너무 오래 공부하면 피로 때문에 다시 낮아진다고 가정합니다.',formula:'y = ax² + bx + c',label:'곡선의 휘어짐',help:'값을 높이면 가장 좋은 공부 시간이 더 뚜렷하게 나타납니다.',reading:'처음에는 올라가다가 어느 지점을 지나면 내려갑니다. 즉, 관계의 방향이 한 번 바뀝니다.',memory:'2차 = 올라갔다 내려간다 ↗↘',xh:'공부 시간',yh:'점수'},exp:{title:'예: 시간에 따른 세균 수',desc:'세균이 일정한 비율로 증식하는 이상적인 상황을 가정합니다.',formula:'y = a · bˣ',label:'증가 속도',help:'값을 높이면 시간이 지날수록 더 가파르게 증가합니다.',reading:'처음에는 천천히 증가하지만 시간이 지날수록 같은 시간 동안 증가하는 양이 커집니다.',memory:'지수 = 갈수록 빨라진다 ↗↗↗',xh:'시간',yh:'세균 수'},log:{title:'예: 연습 시간과 실력 향상',desc:'처음에는 연습 효과가 크지만 숙련될수록 같은 시간을 더 연습해도 향상 폭이 작아진다고 가정합니다.',formula:'y = a · log(x) + b',label:'초기 향상 정도',help:'값을 높이면 초반의 빠른 향상이 더 뚜렷하게 나타납니다.',reading:'처음에는 빠르게 증가하지만 시간이 늘어날수록 그래프가 완만해집니다.',memory:'로그 = 처음엔 빠르게, 나중엔 천천히 ↗→',xh:'연습 시간',yh:'실력'}};
+function f(t,x,s){if(t==='linear')return 35+(3.5+s*1.5)*x;if(t==='quad')return 20+28*x-(2.0+s*.25)*x*x;if(t==='exp')return 6*Math.pow(1.17+s*.055,x);return 12+(12+s*2.2)*Math.log(x+.55)}
+const noise=[-2,3,-1,2,-2,2,-3,2,-1,2];function points(t,s){return [.8,1.7,2.6,3.5,4.4,5.3,6.2,7.1,8,8.9].map((x,i)=>({x,y:f(t,x,s)+noise[i]}))}
+function render(){const c=cfg[type],s=+slider.value;$('#caseTitle').textContent=c.title;$('#caseDesc').textContent=c.desc;$('#formula').textContent=c.formula;$('#controlLabel').textContent=c.label;$('#strengthValue').textContent=s;$('#controlHelp').textContent=c.help;$('#reading').textContent=c.reading;$('#memory').textContent=c.memory;$('#xHead').textContent=c.xh;$('#yHead').textContent=c.yh;
+const pts=points(type,s);$('#dataBody').innerHTML=pts.slice(0,5).map(p=>`<tr><td>${p.x.toFixed(1)}</td><td>${Math.max(0,Math.round(p.y))}</td></tr>`).join('');
+const curve=[];for(let x=.25;x<=9.5;x+=.06)curve.push({x,y:f(type,x,s)});const all=pts.concat(curve);let ymin=Math.min(0,...all.map(p=>p.y)),ymax=Math.max(...all.map(p=>p.y))*1.08;const W=700,H=410,L=62,R=22,T=20,B=52,X=x=>L+x/10*(W-L-R),Y=y=>H-B-(y-ymin)/(ymax-ymin)*(H-T-B);let h='';for(let i=0;i<=5;i++){let y=ymin+(ymax-ymin)*i/5,py=Y(y);h+=`<line x1="${L}" y1="${py}" x2="${W-R}" y2="${py}" stroke="#e3e6eb"/><text x="${L-9}" y="${py+4}" text-anchor="end" font-size="11" fill="#667085">${Math.round(y)}</text>`}for(let i=0;i<=5;i++){let x=i*2;h+=`<text x="${X(x)}" y="${H-B+23}" text-anchor="middle" font-size="11" fill="#667085">${x}</text>`}h+=`<line x1="${L}" y1="${T}" x2="${L}" y2="${H-B}" stroke="#344054"/><line x1="${L}" y1="${H-B}" x2="${W-R}" y2="${H-B}" stroke="#344054"/>`;let d=curve.map((p,i)=>(i?'L':'M')+X(p.x).toFixed(1)+' '+Y(p.y).toFixed(1)).join(' ');h+=`<path d="${d}" fill="none" stroke="#2563eb" stroke-width="4" stroke-linecap="round"/>`;pts.forEach(p=>h+=`<circle cx="${X(p.x)}" cy="${Y(p.y)}" r="5" fill="#ef4444" stroke="white" stroke-width="2"/>`);h+=`<text x="${(L+W-R)/2}" y="${H-8}" text-anchor="middle" font-size="13" fill="#344054">${c.xh}</text><text x="17" y="${(T+H-B)/2}" text-anchor="middle" font-size="13" fill="#344054" transform="rotate(-90 17 ${(T+H-B)/2})">${c.yh}</text>`;$('#plot').innerHTML=h;document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.type===type))}
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{type=b.dataset.type;slider.value=3;render()}));slider.addEventListener('input',render);render()})();
+</script></body></html>
